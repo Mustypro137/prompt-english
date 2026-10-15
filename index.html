@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt English</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- The header never changes. Only <main> changes. -->
+    <header class="nav">
+      <button class="logo" data-action="go" data-view="today">Prompt<span>English</span></button>
+      <nav id="nav">
+        <button data-action="go" data-view="today">Today</button>
+        <button data-action="go" data-view="lessons">Lessons</button>
+        <button data-action="go" data-view="words">Words</button>
+        <button data-action="go" data-view="grammar">Grammar</button>
+        <button data-action="go" data-view="challenges">Challenges</button>
+        <button data-action="go" data-view="progress">Progress</button>
+      </nav>
+      <span id="xp-badge" class="xp-badge"></span>
+    </header>
+
+    <!-- JavaScript (js/app.js) draws every page inside this element. -->
+    <main id="app"></main>
+
+    <footer class="footer">
+      <p>Your English is a skill you're building — not a measure of how smart you are.</p>
+    </footer>
+
+    <!-- Supabase library (for online saving). If you're offline, the site still works. -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
+    <!-- Order matters: data → progress → cloud → the app that uses them all. -->
+    <script src="js/data.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/cloud.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
