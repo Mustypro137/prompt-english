@@ -12,6 +12,16 @@ const PHASES = [
   { id: 4, title: "Build independent skills", weeks: "Week 7–8", goal: "Judge AI answers and solve problems yourself." },
 ];
 
+// ---------- OTHER ENGLISH SKILLS (top menu) ----------
+// These pages say "Coming soon" for now. The "id" must match the
+// data-view="..." of its button in index.html.
+const SKILLS = [
+  { id: "grammar-en", icon: "✏️", title: "Grammar", text: "Everyday English grammar, step by step." },
+  { id: "reading", icon: "📖", title: "Reading", text: "Short texts with questions." },
+  { id: "listening", icon: "🎧", title: "Listening", text: "Listen and answer." },
+  { id: "pronunciation", icon: "🗣️", title: "Pronunciation", text: "Say words clearly." },
+];
+
 // ---------- WORDS ----------
 // "lesson" = which lesson unlocks this word.
 // The example sentence MUST contain the word (the review hides it).

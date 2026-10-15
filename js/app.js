@@ -78,6 +78,10 @@ function render() {
     review: renderReview,
     challenge: renderChallenge,
   };
+  // Every skill in SKILLS (data.js) gets a "Coming soon" page.
+  SKILLS.forEach(function (skill) {
+    views[skill.id] = () => renderComingSoon(skill);
+  });
   app.innerHTML = views[currentView]();
   updateHeader();
 
@@ -94,6 +98,14 @@ function updateHeader() {
   document.querySelectorAll("#nav button").forEach(function (button) {
     button.classList.toggle("active", button.dataset.view === active);
   });
+
+  // Top menu: on a skill page, light up that skill. Anywhere else, you are in "Prompt English".
+  const isSkillPage = SKILLS.some((s) => s.id === currentView);
+  const activeSkill = isSkillPage ? currentView : "today";
+  document.querySelectorAll("#skills button").forEach(function (button) {
+    button.classList.toggle("active", button.dataset.view === activeSkill);
+  });
+  document.querySelector("#nav").hidden = isSkillPage;
 
   document.querySelector("#xp-badge").textContent =
     "🔥 " + progress.streak + "  ·  Lv " + level() + "  ·  " + progress.xp + " XP" + (cloudUser ? "  ·  ☁️" : "");
@@ -656,6 +668,23 @@ function renderChallenge() {
     </div>
     ${result}
     ${model}`;
+}
+
+// =====================================================================
+// PAGES: GRAMMAR, READING, LISTENING, PRONUNCIATION (coming soon)
+// =====================================================================
+
+function renderComingSoon(skill) {
+  return `
+    <section class="page-head center">
+      <p class="soon-icon">${skill.icon}</p>
+      <h1>${skill.title}</h1>
+      <span class="soon">Coming soon</span>
+      <p class="lead">${skill.text} We're building this page.</p>
+      <div class="row center space">
+        <button class="btn" data-action="go" data-view="today" data-focus>Back to Prompt English</button>
+      </div>
+    </section>`;
 }
 
 // =====================================================================

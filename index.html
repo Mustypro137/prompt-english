@@ -17,15 +17,26 @@
     <!-- The header never changes. Only <main> changes. -->
     <header class="nav">
       <button class="logo" data-action="go" data-view="today">Prompt<span>English</span></button>
-      <nav id="nav">
+
+      <!-- Menu 1: the English skills. "Prompt English" is the part you already have. -->
+      <nav id="skills">
+        <button data-action="go" data-view="today">Prompt English</button>
+        <button data-action="go" data-view="grammar-en">Grammar</button>
+        <button data-action="go" data-view="reading">Reading</button>
+        <button data-action="go" data-view="listening">Listening</button>
+        <button data-action="go" data-view="pronunciation">Pronunciation</button>
+      </nav>
+      <span id="xp-badge" class="xp-badge"></span>
+
+      <!-- Menu 2: the pages inside Prompt English. Hidden on the other skills. -->
+      <nav id="nav" class="subnav">
         <button data-action="go" data-view="today">Today</button>
         <button data-action="go" data-view="lessons">Lessons</button>
         <button data-action="go" data-view="words">Words</button>
-        <button data-action="go" data-view="grammar">Grammar</button>
+        <button data-action="go" data-view="grammar">Patterns</button>
         <button data-action="go" data-view="challenges">Challenges</button>
         <button data-action="go" data-view="progress">Progress</button>
       </nav>
-      <span id="xp-badge" class="xp-badge"></span>
     </header>
 
     <!-- JavaScript (js/app.js) draws every page inside this element. -->

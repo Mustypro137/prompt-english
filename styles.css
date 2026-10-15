@@ -109,6 +109,38 @@ h4 {
   white-space: pre;
 }
 
+/* The second menu (inside Prompt English) sits on its own row. */
+.nav .subnav {
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.nav .subnav button {
+  font-size: 0.85rem;
+  padding: 4px 10px;
+}
+
+.nav .subnav[hidden] {
+  display: none;
+}
+
+/* "Coming soon" pages */
+.soon-icon {
+  font-size: 3rem;
+}
+
+.soon {
+  display: inline-block;
+  margin: 8px 0 16px;
+  font-size: 0.85rem;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* ========== LAYOUT ========== */
 main {
   max-width: 960px;
