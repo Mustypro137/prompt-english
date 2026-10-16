@@ -33,9 +33,17 @@
         <button data-action="go" data-view="today">Today</button>
         <button data-action="go" data-view="lessons">Lessons</button>
         <button data-action="go" data-view="words">Words</button>
+        <button data-action="go" data-view="word-levels">Word levels</button>
         <button data-action="go" data-view="grammar">Patterns</button>
         <button data-action="go" data-view="challenges">Challenges</button>
         <button data-action="go" data-view="progress">Progress</button>
+      </nav>
+
+      <!-- Menu 3: the pages inside Grammar. Shown only on Grammar pages. -->
+      <nav id="grammar-nav" class="subnav" hidden>
+        <button data-action="go" data-view="grammar-en">Course</button>
+        <button data-action="go" data-view="verbs">Verbs</button>
+        <button data-action="go" data-view="tense-helper">Which tense?</button>
       </nav>
     </header>
 
@@ -49,10 +57,12 @@
     <!-- Supabase library (for online saving). If you're offline, the site still works. -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
-    <!-- Order matters: data → progress → cloud → the app that uses them all. -->
+    <!-- Order matters: data → progress → cloud → grammar pages → the app that uses them all. -->
     <script src="js/data.js"></script>
+    <script src="js/grammar-data.js"></script>
     <script src="js/progress.js"></script>
     <script src="js/cloud.js"></script>
+    <script src="js/grammar.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

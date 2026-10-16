@@ -15,8 +15,8 @@ const PHASES = [
 // ---------- OTHER ENGLISH SKILLS (top menu) ----------
 // These pages say "Coming soon" for now. The "id" must match the
 // data-view="..." of its button in index.html.
+// (Grammar is ready now: its content is in grammar-data.js.)
 const SKILLS = [
-  { id: "grammar-en", icon: "✏️", title: "Grammar", text: "Everyday English grammar, step by step." },
   { id: "reading", icon: "📖", title: "Reading", text: "Short texts with questions." },
   { id: "listening", icon: "🎧", title: "Listening", text: "Listen and answer." },
   { id: "pronunciation", icon: "🗣️", title: "Pronunciation", text: "Say words clearly." },
@@ -369,6 +369,92 @@ const CHALLENGES = [
     ],
     model: "Thanks, the form works and the layout is good. However, there are three problems. First, it should validate the email before sending. Second, the button text should say \"Send message\" instead of \"Click\". Third, please add short comments to the code so I can learn from it.",
   },
+];
+
+// ---------- WORD LEVELS (how well do you know these words?) ----------
+// The tabs on the "Word levels" page, from easy to hard. "mine" = words you add yourself.
+const WORD_GROUPS = [
+  { id: "beginner", icon: "🌱", title: "Beginner", note: "A1–A2 · everyday words" },
+  { id: "intermediate", icon: "🌿", title: "Intermediate", note: "B1 · work and clients" },
+  { id: "advanced", icon: "🌳", title: "Advanced", note: "B2–C1 · professional English" },
+  { id: "mine", icon: "⭐", title: "My words", note: "Words you add yourself" },
+];
+
+// The words for each level. To add a word, copy one line and change it.
+const CHECK_WORDS = {
+  beginner: [
+    { word: "price", meaning: "How much money something costs.", example: "What is the price of a simple website?" },
+    { word: "order", meaning: "A request to buy something.", example: "My brother got ten new orders today." },
+    { word: "customer", meaning: "A person who buys from a shop or business.", example: "A customer asked for a bigger size." },
+    { word: "message", meaning: "Words you send to someone.", example: "I sent the client a message on WhatsApp." },
+    { word: "problem", meaning: "Something that is wrong or difficult.", example: "There is a problem with the menu on phones." },
+    { word: "answer", meaning: "What you say or write back to a question.", example: "I am waiting for his answer." },
+    { word: "change", meaning: "To make something different.", example: "Can you change the color to blue?" },
+    { word: "choose", meaning: "To pick one thing from many.", example: "Please choose one of these two designs." },
+    { word: "explain", meaning: "To make something clear so people understand.", example: "Can you explain what you want on the homepage?" },
+    { word: "finish", meaning: "To come to the end of something.", example: "I will finish the page tonight." },
+    { word: "important", meaning: "Something that matters a lot.", example: "Speed is important for a shop website." },
+    { word: "easy", meaning: "Not difficult.", example: "The new menu is easy to use." },
+    { word: "busy", meaning: "Having a lot to do.", example: "I am busy today, but I can call tomorrow." },
+    { word: "simple", meaning: "Not complicated; plain.", example: "The client wants a simple design." },
+    { word: "ready", meaning: "Finished and prepared to use.", example: "The first version is ready." },
+    { word: "cheap", meaning: "It does not cost a lot of money.", example: "This hosting plan is cheap." },
+    { word: "quick", meaning: "Fast; it takes a short time.", example: "Can we have a quick call?" },
+    { word: "share", meaning: "To give or show something to other people.", example: "Please share the photos with me." },
+    { word: "meeting", meaning: "When people come together to talk.", example: "We have a meeting at 10 a.m." },
+    { word: "idea", meaning: "A thought or plan in your mind.", example: "I have an idea for the logo." },
+  ],
+  intermediate: [
+    { word: "notice", meaning: "To see or become aware of something.", example: "Did you notice the bug on the contact page?" },
+    { word: "approach", meaning: "A way of doing something.", example: "Let's try a different approach to the layout." },
+    { word: "issue", meaning: "A problem or a topic to discuss.", example: "The client reported an issue with the form." },
+    { word: "priority", meaning: "The most important thing to do first.", example: "Our first priority is the mobile version." },
+    { word: "suggest", meaning: "To give an idea for someone to consider.", example: "I suggest a darker color for the buttons." },
+    { word: "require", meaning: "To need something.", example: "This page requires a login." },
+    { word: "available", meaning: "Free to use, buy or talk to.", example: "Are you available for a call on Friday?" },
+    { word: "consider", meaning: "To think carefully about something.", example: "Please consider adding a FAQ page." },
+    { word: "improve", meaning: "To make something better.", example: "I want to improve my English writing." },
+    { word: "mention", meaning: "To say something quickly, without many details.", example: "You didn't mention the deadline." },
+    { word: "purpose", meaning: "The reason why something exists or is done.", example: "What is the purpose of this website?" },
+    { word: "solution", meaning: "An answer to a problem.", example: "I found a solution for the slow images." },
+    { word: "option", meaning: "One thing you can choose.", example: "Here are three options for the header." },
+    { word: "detail", meaning: "A small piece of information.", example: "Can you send me more details?" },
+    { word: "confirm", meaning: "To say that something is true or final.", example: "Please confirm the meeting time." },
+    { word: "request", meaning: "To ask for something politely.", example: "The client requested a new page." },
+    { word: "response", meaning: "An answer or reaction.", example: "Thank you for your quick response." },
+    { word: "avoid", meaning: "To stay away from something; to not do it.", example: "Avoid long text on the homepage." },
+    { word: "achieve", meaning: "To succeed in doing something.", example: "We achieved our goal this week." },
+    { word: "previous", meaning: "Before this one.", example: "I liked the previous version better." },
+  ],
+  advanced: [
+    { word: "assumption", meaning: "Something you believe is true but have not checked.", example: "My assumption was wrong: he wanted a shop, not a blog." },
+    { word: "judgment", meaning: "Your ability to decide well; an opinion after thinking.", example: "Use your judgment before you copy the AI answer." },
+    { word: "efficient", meaning: "Working well without wasting time or energy.", example: "This code is shorter and more efficient." },
+    { word: "reliable", meaning: "You can trust it to work well every time.", example: "We need reliable hosting for the shop." },
+    { word: "appropriate", meaning: "Right or suitable for the situation.", example: "Is this tone appropriate for a client email?" },
+    { word: "significant", meaning: "Big or important enough to notice.", example: "The new images made a significant difference." },
+    { word: "ensure", meaning: "To make sure something happens.", example: "Please ensure the form works on all phones." },
+    { word: "involve", meaning: "To include something as a part.", example: "The project involves design and coding." },
+    { word: "opportunity", meaning: "A good chance to do something.", example: "This client is a great opportunity for me." },
+    { word: "recommend", meaning: "To say that something is good and should be used.", example: "I recommend a simple one-page site." },
+    { word: "consistent", meaning: "Always the same, in the same style.", example: "Keep the button colors consistent on every page." },
+    { word: "accessible", meaning: "Easy for everyone to use, including people with disabilities.", example: "Add alt text to make the site accessible." },
+    { word: "prioritize", meaning: "To decide what is most important and do it first.", example: "Let's prioritize the checkout page." },
+    { word: "comprehensive", meaning: "Complete; including everything.", example: "The AI gave me a comprehensive answer." },
+    { word: "feasible", meaning: "Possible and realistic to do.", example: "Is a one-week deadline feasible?" },
+    { word: "leverage", meaning: "To use something to get a better result.", example: "We can leverage Instagram to get more customers." },
+    { word: "ambiguous", meaning: "Not clear; it can have more than one meaning.", example: "Your prompt is ambiguous, so the AI got confused." },
+    { word: "trade-off", meaning: "Losing one good thing to get another.", example: "There is a trade-off between speed and design." },
+    { word: "scalable", meaning: "It can grow bigger without problems.", example: "We need a scalable shop for more products." },
+    { word: "maintain", meaning: "To keep something working well.", example: "Who will maintain the website after launch?" },
+  ],
+};
+
+// The three lists. "id" is what is saved in your progress.
+const CHECK_LEVELS = [
+  { id: "write", icon: "✍️", label: "I know it and can write it", short: "Can write" },
+  { id: "know", icon: "👀", label: "I know it, but I can't write it yet", short: "Know, can't write" },
+  { id: "new", icon: "❓", label: "I don't know it", short: "Don't know" },
 ];
 
 // ---------- AI COACH PROMPTS ----------

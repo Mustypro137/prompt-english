@@ -550,6 +550,243 @@ textarea:focus {
   margin-bottom: 10px;
 }
 
+/* ========== WORD LEVELS ========== */
+/* Tabs: Beginner · Intermediate · Advanced · My words */
+.wl-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.wl-tab {
+  padding: 8px 16px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.wl-tab:hover {
+  color: var(--text);
+}
+
+.wl-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.wl-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* The big card: one word at a time */
+.wl-card {
+  max-width: 560px;
+  margin: 24px auto 0;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.wl-word {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.wl-meaning {
+  font-size: 1.1rem;
+}
+
+.wl-card .example {
+  text-align: left;
+}
+
+.wl-question {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.wl-answers {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.card .wl-answer {
+  margin-top: 0;
+  width: 100%;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.wl-answer:hover {
+  border-color: var(--accent);
+}
+
+/* The 3 small lists under the card */
+.wl-lists {
+  margin-top: 12px;
+}
+
+.wl-list {
+  padding: 14px 16px;
+}
+
+.wl-list h4 {
+  margin-bottom: 10px;
+}
+
+.wl-list .chip {
+  padding: 4px 10px;
+  font-size: 0.9rem;
+}
+
+/* "All levels" summary rows */
+.wl-sum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.card .wl-sum .btn {
+  margin-top: 0;
+}
+
+/* The "add your own words" box */
+.wc-add {
+  flex-wrap: nowrap;
+}
+
+.card .wc-add .btn {
+  margin-top: 0;
+}
+
+/* ========== GRAMMAR COURSE ========== */
+/* Tense timeline: past ←— NOW —→ future */
+.timeline-card {
+  margin-bottom: 16px;
+}
+
+.timeline {
+  position: relative;
+  height: 64px;
+  margin: 4px 8px 8px;
+}
+
+.tl-line {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+.tl-now {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--warn);
+}
+
+/* The vertical NOW line */
+.tl-now::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 2px;
+  height: 30px;
+  background: var(--warn);
+}
+
+.tl-dot {
+  position: absolute;
+  top: 26px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+
+.tl-dot.hit {
+  background: var(--bad);
+}
+
+.tl-range {
+  position: absolute;
+  top: 28px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.tl-label {
+  position: absolute;
+  bottom: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.tl-label.left { left: 0; }
+.tl-label.right { right: 0; }
+
+/* Irregular verbs */
+.verb-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.verb-table th,
+.verb-table td {
+  text-align: left;
+  padding: 6px 8px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.verb-table th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.verb-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+  max-width: 640px;
+}
+
+.verb-inputs label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+/* "Which tense?" helper */
+.helper {
+  max-width: 640px;
+  margin-bottom: 16px;
+}
+
 /* ========== CHALLENGES ========== */
 .situation {
   display: grid;

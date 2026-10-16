@@ -71,12 +71,18 @@ function render() {
     today: renderToday,
     lessons: renderLessons,
     words: renderWords,
+    "word-levels": renderWordLevels,
     grammar: renderGrammar,
     challenges: renderChallenges,
     progress: renderProgress,
     lesson: renderLessonPlayer,
     review: renderReview,
     challenge: renderChallenge,
+    // Grammar menu (grammar.js)
+    "grammar-en": renderGrammarHome,
+    verbs: renderVerbs,
+    "verb-review": renderVerbReview,
+    "tense-helper": renderTenseHelper,
   };
   // Every skill in SKILLS (data.js) gets a "Coming soon" page.
   SKILLS.forEach(function (skill) {
@@ -91,21 +97,31 @@ function render() {
 }
 
 function updateHeader() {
+  // The lesson player is shared: a grammar lesson belongs to the Grammar menu.
+  const inGrammar = GRAMMAR_PAGES.includes(currentView) ||
+    (currentView === "lesson" && lessonState.kind === "grammar");
+
   // The lesson player belongs to "Lessons", the review to "Words", etc.
-  const parent = { lesson: "lessons", review: "words", challenge: "challenges" };
+  const parent = {
+    lesson: inGrammar ? "grammar-en" : "lessons",
+    review: "words",
+    challenge: "challenges",
+    "verb-review": "verbs",
+  };
   const active = parent[currentView] || currentView;
 
-  document.querySelectorAll("#nav button").forEach(function (button) {
+  document.querySelectorAll(".subnav button").forEach(function (button) {
     button.classList.toggle("active", button.dataset.view === active);
   });
 
   // Top menu: on a skill page, light up that skill. Anywhere else, you are in "Prompt English".
   const isSkillPage = SKILLS.some((s) => s.id === currentView);
-  const activeSkill = isSkillPage ? currentView : "today";
+  const activeSkill = inGrammar ? "grammar-en" : isSkillPage ? currentView : "today";
   document.querySelectorAll("#skills button").forEach(function (button) {
     button.classList.toggle("active", button.dataset.view === activeSkill);
   });
-  document.querySelector("#nav").hidden = isSkillPage;
+  document.querySelector("#nav").hidden = isSkillPage || inGrammar;
+  document.querySelector("#grammar-nav").hidden = !inGrammar;
 
   document.querySelector("#xp-badge").textContent =
     "🔥 " + progress.streak + "  ·  Lv " + level() + "  ·  " + progress.xp + " XP" + (cloudUser ? "  ·  ☁️" : "");
@@ -301,7 +317,9 @@ function nextStep() {
   // Finished the last exercise → save the result once.
   if (s.step === s.lesson.exercises.length) {
     s.percent = Math.round((s.score / s.lesson.exercises.length) * 100);
-    s.firstPass = finishLesson(s.lesson, s.percent);
+    s.firstPass = s.kind === "grammar"
+      ? finishGrammarLesson(s.lesson, s.percent)
+      : finishLesson(s.lesson, s.percent);
     if (s.firstPass) addXP(20);
   }
   render();
@@ -310,10 +328,14 @@ function nextStep() {
 function renderLessonPlayer() {
   const s = lessonState;
   const lesson = s.lesson;
-  const back = `<button class="link" data-action="go" data-view="lessons">← All lessons</button>`;
+  const isGrammar = s.kind === "grammar";
+  const back = isGrammar
+    ? `<button class="link" data-action="go" data-view="grammar-en">← Grammar course</button>`
+    : `<button class="link" data-action="go" data-view="lessons">← All lessons</button>`;
 
   // 1. Intro: teach before testing
   if (s.step === -1) {
+    if (isGrammar) return back + grammarIntro(lesson);
     return `
       ${back}
       <section class="page-head">
@@ -330,7 +352,7 @@ function renderLessonPlayer() {
   }
 
   // 3. Results
-  if (s.step >= lesson.exercises.length) return renderLessonResults();
+  if (s.step >= lesson.exercises.length) return isGrammar ? renderGrammarResults() : renderLessonResults();
 
   // 2. One exercise
   const exercise = lesson.exercises[s.step];
@@ -343,6 +365,8 @@ function renderLessonPlayer() {
     fill: renderFill,
     order: renderOrder,
     use: renderUse,
+    fix: renderFix,     // grammar.js
+    write: renderWrite, // grammar.js
   }[exercise.type](exercise, s);
 
   const feedback = s.answered
@@ -554,6 +578,155 @@ function renderReview() {
 }
 
 // =====================================================================
+// PAGE: WORD LEVELS (how well do you know these words?)
+// Tabs from easy to hard. You sort one word at a time into 3 lists:
+// can write / know but can't write / don't know.
+// =====================================================================
+
+const WORD_TAB_KEY = "prompt-english-word-tab"; // remembers your last tab
+
+function savedWordTab() {
+  try {
+    const tab = localStorage.getItem(WORD_TAB_KEY);
+    if (WORD_GROUPS.some((g) => g.id === tab)) return tab;
+  } catch (error) {}
+  return "beginner";
+}
+
+let wordLevelState = { group: savedWordTab(), showMeaning: false, lastWord: null };
+
+// Finds the meaning + example of a word (only the built-in words have them).
+function checkWordInfo(word) {
+  const group = groupOfWord(word);
+  return group === "mine" ? null : CHECK_WORDS[group].find((w) => w.word === word);
+}
+
+function renderWordLevels() {
+  const st = wordLevelState;
+  const group = WORD_GROUPS.find((g) => g.id === st.group);
+  const all = wordsInGroup(group.id);
+  const left = wordsToSort(group.id);
+  const sorted = all.length - left.length;
+
+  // 1. Tabs: Beginner · Intermediate · Advanced · My words
+  const tabs = WORD_GROUPS.map(function (g) {
+    const total = wordsInGroup(g.id).length;
+    const done = total - wordsToSort(g.id).length;
+    return `<button class="wl-tab ${g.id === group.id ? "active" : ""}" data-action="wl-tab" data-group="${g.id}">
+      ${g.icon} ${g.title} <span class="wl-count">${done}/${total}</span></button>`;
+  }).join("");
+
+  // 2. The card: one word at a time
+  let card;
+  if (left.length) {
+    const word = left[0];
+    const info = checkWordInfo(word);
+    const meaning = !info ? "" : st.showMeaning
+      ? `<p class="wl-meaning">${info.meaning}</p><p class="example">${info.example}</p>`
+      : `<button class="link" data-action="wl-meaning">👁 Show meaning</button>`;
+    const answers = CHECK_LEVELS.map((l) =>
+      `<button class="btn secondary wl-answer" data-action="wc-rate" data-word="${esc(word)}" data-level="${l.id}">${l.icon} ${l.label}</button>`
+    ).join("");
+
+    card = `
+      <div class="card wl-card">
+        <p class="muted small">Word ${sorted + 1} of ${all.length}</p>
+        <p class="wl-word">${esc(word)}</p>
+        ${meaning}
+        <p class="wl-question">How well do you know this word?</p>
+        <div class="wl-answers">${answers}</div>
+        <div class="row center">
+          ${st.lastWord ? `<button class="link" data-action="wl-undo">↶ Undo "${esc(st.lastWord)}"</button>` : ""}
+          ${group.id === "mine" ? `<button class="link" data-action="wc-remove" data-word="${esc(word)}">✕ Delete this word</button>` : ""}
+        </div>
+      </div>`;
+  } else if (all.length) {
+    const next = WORD_GROUPS.find((g) => g.id !== "mine" && wordsToSort(g.id).length);
+    card = `
+      <div class="card wl-card">
+        <p class="wl-word">🎉</p>
+        <h2>You sorted all ${all.length} words here!</h2>
+        <div class="row center">
+          ${st.lastWord ? `<button class="btn secondary" data-action="wl-undo">↶ Undo "${esc(st.lastWord)}"</button>` : ""}
+          ${next ? `<button class="btn" data-action="wl-tab" data-group="${next.id}">Next: ${next.icon} ${next.title}</button>` : ""}
+        </div>
+      </div>`;
+  } else {
+    card = `<p class="muted center">No words here yet. Add your own words above.</p>`;
+  }
+
+  // Only in "My words": the box to add new words
+  const addBox = group.id !== "mine" ? "" : `
+    <div class="card">
+      <h3>Add your own words</h3>
+      <p class="muted small">Separate words with commas, e.g. <em>deadline, invoice, follow up</em></p>
+      <div class="row wc-add">
+        <input id="wc-input" class="input" autocomplete="off" placeholder="Type words…" data-enter="wc-add" />
+        <button class="btn" data-action="wc-add">Add</button>
+      </div>
+    </div>`;
+
+  // 3. The 3 lists for this tab
+  const lists = CHECK_LEVELS.map(function (l) {
+    const words = wordsInList(l.id, group.id);
+    const chips = words.map((w) =>
+      `<button class="chip" data-action="wc-unsort" data-word="${esc(w)}" title="Sort this word again">${esc(w)}</button>`
+    ).join("");
+    return `
+      <article class="card wl-list">
+        <h4>${l.icon} ${l.short} <span class="pill">${words.length}</span></h4>
+        <div class="chips">${chips || `<span class="muted small">—</span>`}</div>
+      </article>`;
+  }).join("");
+
+  // 4. Summary of ALL levels, with copy buttons
+  const summary = CHECK_LEVELS.map(function (l) {
+    const count = wordsInList(l.id).length;
+    const copyLabel = { write: "Copy list", know: "Copy practice prompt", new: "Copy for /add-words" }[l.id];
+    return `
+      <div class="wl-sum">
+        <span>${l.icon} ${l.short}: <strong>${count}</strong></span>
+        ${count ? `<button class="btn small secondary" data-action="wc-copy" data-level="${l.id}">${copyLabel}</button>` : ""}
+      </div>`;
+  }).join("");
+
+  return `
+    <section class="page-head">
+      <h1>How well do you know these words?</h1>
+      <p class="lead">Start easy, then go harder. Be honest — it helps you choose what to learn next.</p>
+    </section>
+
+    <nav class="wl-tabs">${tabs}</nav>
+    <p class="muted small">${group.note}</p>
+    <div class="bar"><span style="width:${all.length ? (sorted / all.length) * 100 : 0}%"></span></div>
+
+    ${addBox}
+    ${card}
+
+    <h3 class="space">Your lists · ${group.icon} ${group.title}</h3>
+    <p class="muted small">Click a word to sort it again.</p>
+    <div class="grid wl-lists">${lists}</div>
+
+    <div class="card space">
+      <h3>All levels</h3>
+      ${summary}
+      <p class="muted small">❓ Don't know → paste into Claude to make lessons. 👀 Know, can't write → paste into your AI coach to practise.</p>
+    </div>`;
+}
+
+// Text for the "Copy" buttons (all levels together).
+function wordCheckCopyText(level) {
+  const words = wordsInList(level).join(", ");
+  if (level === "new") return "/add-words " + words;
+  if (level === "know") {
+    return "Help me practise writing these English words: " + words + ".\n" +
+      "For each word: give me its meaning in simple English and one example, then ask me to write my own sentence. " +
+      "Correct my sentence and explain my mistakes simply. One word at a time.";
+  }
+  return words;
+}
+
+// =====================================================================
 // PAGE: GRAMMAR
 // =====================================================================
 
@@ -671,7 +844,7 @@ function renderChallenge() {
 }
 
 // =====================================================================
-// PAGES: GRAMMAR, READING, LISTENING, PRONUNCIATION (coming soon)
+// PAGES: READING, LISTENING, PRONUNCIATION (coming soon)
 // =====================================================================
 
 function renderComingSoon(skill) {
@@ -884,6 +1057,51 @@ const actions = {
       `<p class="small">Example: <em>${word.example}</em></p>`);
   },
 
+  // Word levels
+  "wl-tab": function (el) {
+    wordLevelState.group = el.dataset.group;
+    wordLevelState.showMeaning = false;
+    try { localStorage.setItem(WORD_TAB_KEY, el.dataset.group); } catch (error) {}
+    render();
+  },
+  "wl-meaning": function () {
+    wordLevelState.showMeaning = true;
+    render();
+  },
+  "wl-undo": function () {
+    const word = wordLevelState.lastWord;
+    setWordLevel(word, null);
+    wordLevelState.group = groupOfWord(word);
+    wordLevelState.lastWord = null;
+    render();
+  },
+  "wc-add": function () {
+    const input = document.querySelector("#wc-input");
+    input.value.split(",")
+      .map((w) => w.toLowerCase().replace(/\s+/g, " ").trim())
+      // skip empty words, very long text, and words that are already on the page
+      .filter((w) => w && w.length <= 40 && !progress.wordCheck[w] && groupOfWord(w) === "mine")
+      .forEach((w) => { progress.wordCheck[w] = { level: null, date: today() }; });
+    saveProgress();
+    render();
+    document.querySelector("#wc-input").focus();
+  },
+  "wc-rate": function (el) {
+    setWordLevel(el.dataset.word, el.dataset.level);
+    wordLevelState.lastWord = el.dataset.word;
+    wordLevelState.showMeaning = false;
+    render();
+  },
+  "wc-unsort": function (el) {
+    setWordLevel(el.dataset.word, null);
+    render();
+  },
+  "wc-remove": function (el) {
+    removeCheckWord(el.dataset.word);
+    render();
+  },
+  "wc-copy": (el) => copyText(wordCheckCopyText(el.dataset.level), el),
+
   // Word review
   "start-review": () => startReview(false),
   "extra-practice": () => startReview(true),
@@ -1007,6 +1225,9 @@ const actions = {
     }
   },
 };
+
+// Add the Grammar course actions (from grammar.js).
+Object.assign(actions, grammarActions);
 
 // ---------- EVENT LISTENERS (only four for the whole site!) ----------
 

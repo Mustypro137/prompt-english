@@ -19,6 +19,9 @@ function defaultProgress() {
     words: {},      // { clarify: { box: 0, due: "2026-10-16", lapses: 0 } }
     challenges: {}, // { c1: { draft: "...", attempts: 2, done: true } }
     journal: [],    // [ { date, learned, forgot, next } ]
+    grammar: {},    // { gl1: { best: 80, passed: true } }
+    verbs: {},      // { go: { box: 0, due: "2026-10-16", lapses: 0 } }
+    wordCheck: {},  // { notice: { level: "write" | "know" | "new" | null, date } }
   };
 }
 
@@ -158,7 +161,11 @@ function dueWords() {
 }
 
 function reviewWord(id, remembered) {
-  const card = progress.words[id];
+  moveCard(progress.words[id], remembered);
+}
+
+// Spaced repetition for one card (a word or a verb).
+function moveCard(card, remembered) {
   if (remembered) {
     card.box = Math.min(card.box + 1, INTERVALS.length - 1); // move up a level
   } else {
@@ -183,4 +190,80 @@ function isChallengeUnlocked(challenge) {
 
 function isChallengeDone(challenge) {
   return Boolean(progress.challenges[challenge.id] && progress.challenges[challenge.id].done);
+}
+
+// ---------- WORD LEVELS ----------
+// Which tab a word belongs to: "beginner", "intermediate", "advanced", or "mine" (you added it).
+function groupOfWord(word) {
+  return Object.keys(CHECK_WORDS).find((g) => CHECK_WORDS[g].some((w) => w.word === word)) || "mine";
+}
+
+// All the words in one tab.
+function wordsInGroup(group) {
+  if (group !== "mine") return CHECK_WORDS[group].map((w) => w.word);
+  return Object.keys(progress.wordCheck).filter((w) => groupOfWord(w) === "mine");
+}
+
+// Words in this tab that you have not sorted yet.
+function wordsToSort(group) {
+  return wordsInGroup(group).filter((w) => !(progress.wordCheck[w] && progress.wordCheck[w].level));
+}
+
+// Words in one list ("write" | "know" | "new"). Give a group to see only that tab.
+function wordsInList(level, group) {
+  return Object.keys(progress.wordCheck).filter((w) =>
+    progress.wordCheck[w].level === level && (!group || groupOfWord(w) === group));
+}
+
+// level = "write" | "know" | "new", or null to put the word back in "to sort".
+function setWordLevel(word, level) {
+  progress.wordCheck[word] = { level: level, date: today() };
+  saveProgress();
+}
+
+function removeCheckWord(word) {
+  delete progress.wordCheck[word];
+  saveProgress();
+}
+
+// ---------- GRAMMAR COURSE ----------
+function isGrammarDone(id) {
+  return Boolean(progress.grammar[id] && progress.grammar[id].passed);
+}
+
+// The first lesson is always open. Every other lesson needs the one before it.
+function isGrammarUnlocked(id) {
+  const index = GRAMMAR_LESSONS.findIndex((l) => l.id === id);
+  return index === 0 || isGrammarDone(GRAMMAR_LESSONS[index - 1].id);
+}
+
+// Saves the score. Returns true if this is the FIRST time you passed.
+function finishGrammarLesson(lesson, percent) {
+  const before = progress.grammar[lesson.id] || { best: 0, passed: false };
+  const passed = before.passed || percent >= PASS_SCORE;
+  const firstPass = passed && !before.passed;
+
+  progress.grammar[lesson.id] = { best: Math.max(before.best, percent), passed: passed };
+
+  // Unlock the lesson's irregular verbs: first review is tomorrow.
+  if (passed && lesson.verbs) {
+    lesson.verbs.forEach(function (id) {
+      if (!progress.verbs[id]) {
+        progress.verbs[id] = { box: 0, due: addDays(1), lapses: 0 };
+      }
+    });
+  }
+
+  saveProgress();
+  return firstPass;
+}
+
+function dueVerbs() {
+  return Object.keys(progress.verbs).filter(function (id) {
+    return progress.verbs[id].due <= today();
+  });
+}
+
+function reviewVerb(id, remembered) {
+  moveCard(progress.verbs[id], remembered);
 }
